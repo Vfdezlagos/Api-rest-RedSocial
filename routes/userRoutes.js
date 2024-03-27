@@ -32,7 +32,9 @@ userRouter.put('/update', auth, userController.update);
 
 userRouter.post('/upload', [auth, uploads.single('file0')], userController.upload);
 
-userRouter.get('/avatar/:file', auth, userController.avatar);
+userRouter.get('/avatar/:file', userController.avatar);
+
+userRouter.get('/counters/:id?', auth, userController.counters);
 
 
 export default userRouter;

@@ -1,5 +1,7 @@
 // importar dependencias y modulos
 import userModel from '../models/User.js';
+import followModel from '../models/Follow.js';
+import publicationModel from '../models/Publication.js';
 import bcrypt from 'bcrypt';
 import * as jwt from '../helpers/jwt.js';
 import fs from 'node:fs';
@@ -8,6 +10,7 @@ import path from 'node:path';
 
 // Importar servicios
 import { followUserIds, followThisUser } from '../helpers/followService.js';
+import validate from '../helpers/validate.js';
 
 
 // Acciones de prueba
@@ -30,6 +33,19 @@ const register = async (req, res) => {
             message: 'Faltan datos por enviar'
         });
     }
+
+    // Validacion avanzada
+    try{
+        validate(params);
+    }catch(exception){
+        return res.status(400).json({
+            status: 'Error',
+            message: 'Validacion no superada'
+        });
+    }
+    
+
+
 
     // control de usuarios duplicados
     const queryUsers = userModel.find({$or: [
@@ -200,6 +216,7 @@ const list = async (req, res) => {
 
     const options= {
         page,
+        select: {password: 0, email: 0, __v: 0, role: 0},
         limit: itemsPerPage,
         sort: {_id: 1},
         customLabels: myCustomLabels
@@ -279,6 +296,8 @@ const update = async (req, res) => {
         if(userToUpdate.password){
             let pwd = await bcrypt.hash(userToUpdate.password, 10);
             userToUpdate.password = pwd;
+        }else {
+            delete userToUpdate.password;
         }
 
 
@@ -398,6 +417,40 @@ const avatar = (req, res) => {
 
 }
 
+const counters = async (req, res) => {
+
+    // Obtener id del usuario logeado
+    let userId = req.user.id;
+
+    if(req.params.id) {
+        userId = req.params.id;
+    }
+
+
+    try{
+
+        const following = await followModel.countDocuments({user: userId}).exec();
+
+        const followed = await followModel.countDocuments({followed: userId}).exec();
+        
+        const publications = await publicationModel.countDocuments({user: userId}).exec();
+
+        return res.status(200).json({
+            status: 'Success',
+            message: 'Contador de follows y posts',
+            following,
+            followed,
+            publications
+        });
+    
+    }catch(exception){
+        return res.status(500).send({
+            status: 'Error',
+            message: 'Error al ejecutar la consulta'
+        });
+    }
+
+}
 
 // Exportar acciones
 export {
@@ -408,5 +461,6 @@ export {
     list,
     update,
     upload,
-    avatar
+    avatar,
+    counters
 }

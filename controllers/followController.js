@@ -1,6 +1,5 @@
 // Importar modelos
 import followModel from "../models/Follow.js";
-import userModel from "../models/User.js";
 
 
 // Importar servicios o helpers
@@ -117,7 +116,7 @@ const following = async (req, res) => {
     }
 
     const options= {
-        populate: {path:'user followed', select: '-password -role -__v'}, 
+        populate: {path:'user followed', select: '-password -role -__v -email'}, 
         page,
         limit: itemsPerPage,
         customLabels: myCustomLabels
@@ -186,7 +185,7 @@ const followers = async (req, res) => {
     }
 
     const options= {
-        populate: {path:'user', select: '-password -role -__v'}, 
+        populate: {path:'user', select: '-password -role -__v -email'}, 
         page,
         limit: itemsPerPage,
         customLabels: myCustomLabels
