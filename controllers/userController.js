@@ -223,7 +223,6 @@ const list = async (req, res) => {
     }
 
 
-
     await userModel.paginate({}, options)
             .then(async result => {
                 if(result.length === 0 && result == null){
@@ -254,7 +253,6 @@ const list = async (req, res) => {
                     message: 'Error al ejecutar la consulta'
                 })
             })
-
 }
 
 const update = async (req, res) => {
@@ -452,6 +450,73 @@ const counters = async (req, res) => {
 
 }
 
+
+// Admin only
+const passwordUpdate = async (req, res) => {
+
+    // Verificar que el usuario identificado sea admin
+    if(!req.user || req.user.role != 'role-admin') return res.status(401).send({
+        status: 'Unauthorized',
+        message: 'Debe ser admin para ejecutar esta acción'
+    });
+
+
+    // Obtener id del usuario por url
+    if(!req.params.id) return res.status(400).send({
+        status: 'Error',
+        message: 'Debe ingresar un id de usuario por la url'
+    });
+
+    let userId = req.params.id
+
+    // obtener nueva pass por body
+    if(!req.body.password || req.body.password.length == 0) return res.status(400).send({
+        status: 'Error',
+        message: 'Debe ingresar la contraseña a actualizar por el body'
+    });
+
+    let newPass = req.body.password;
+
+    let encriptedPass = await bcrypt.hash(newPass, 10)
+        .then(pass => {
+            if(!pass || pass.length == 0) return res.status(400).send({
+                status: 'Error',
+                message: 'Error al intentar encriptar la contraseña'
+            });
+
+            return pass;
+        })
+        .catch(error => {
+            return res.status(400).send({
+                status: 'Error',
+                message: 'Error al intentar encriptar la contraseña'
+            });
+
+        });
+
+    // hacer un findByIdAndUpdate
+    userModel.findByIdAndUpdate(userId, {password: encriptedPass}, {new: true}).exec()
+        .then(user => {
+            if(!user || user.length == 0) return res.status(404).send({
+                status: 'Not Found',
+                message: 'Usuario no encontrado'
+            });
+
+            return res.status(200).send({
+                status: 'Success',
+                message: 'Contraseña actualizada con exito',
+                user,
+                newPass
+            });
+        })
+        .catch(error => {
+            return res.status(500).send({
+                status: 'Error',
+                message: 'Error al ejecutar la busqueda del usuario'
+            });
+        });
+}
+
 // Exportar acciones
 export {
     prueba,
@@ -462,5 +527,6 @@ export {
     update,
     upload,
     avatar,
-    counters
+    counters,
+    passwordUpdate
 }

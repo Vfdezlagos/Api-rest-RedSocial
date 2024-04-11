@@ -1,8 +1,9 @@
 import mongoose from "mongoose";
+import config from "../config.js";
 
 const connection = async () => {
     try{
-        await mongoose.connect('mongodb+srv://vfernandezlagos:u6bPeKSLKQLSj7bc@api-red-social.k9wixul.mongodb.net/?retryWrites=true&w=majority');
+        await mongoose.connect(config.HOST + '/red_social_db');
         console.log('DB red_social_db successfully Connected!!')
     }catch(error){
         console.log(error);

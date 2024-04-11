@@ -36,5 +36,7 @@ userRouter.get('/avatar/:file', userController.avatar);
 
 userRouter.get('/counters/:id?', auth, userController.counters);
 
+userRouter.put('/changepassword/:id?', auth, userController.passwordUpdate);
+
 
 export default userRouter;

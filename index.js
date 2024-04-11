@@ -4,6 +4,7 @@ import cors from 'cors';
 import userRoutes from './routes/userRoutes.js';
 import followRoutes from './routes/followRoutes.js';
 import publicationRoutes from './routes/publicationRoutes.js';
+import config from "./config.js";
 
 // Conexion a DB
 connection();
@@ -11,7 +12,7 @@ connection();
 
 // Crear servidor de node
 const app = express();
-const port = 3000;
+const port = config.PORT;
 
 
 // Configurar el cors

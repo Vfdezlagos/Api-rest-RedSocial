@@ -1,8 +1,9 @@
 import jwt from 'jwt-simple'
 import moment from 'moment'
+import config from '../config.js';
 
 // Clave secreta
-const secret = "ClAvE_SEcReTA_dEL_PROyECTo_DE_LA_rED_sOCiAL_1827547";
+const secret = config.JWT_KEY;
 
 // Crear funcion para generar token
 const createToken = (user) => {
